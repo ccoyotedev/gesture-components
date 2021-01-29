@@ -1,25 +1,55 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Carousel } from './components/carousel';
+import styled from 'styled-components';
 import './App.css';
+
+const Container = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+`
+
+const cardData = [
+  {
+    id: 1
+  },
+  {
+    id: 2
+  },
+  {
+    id: 3
+  },
+  {
+    id: 4
+  },
+  {
+    id: 5
+  },
+  {
+    id: 6
+  },
+  {
+    id: 7
+  },
+  {
+    id: 8
+  },
+  {
+    id: 9
+  },
+  {
+    id: 10
+  }
+]
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <Carousel data={cardData} />
+    </Container>
   );
 }
 
