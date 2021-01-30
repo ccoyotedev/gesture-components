@@ -63,7 +63,7 @@ const Card = (props) => {
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
       focused={props.state === 'current'}
-      style={{transform: transform.interpolate(t => `${t} rotateY(180deg)`)}}
+      style={{transform: transform.interpolate(t => t)}}
     />
   )
 }
@@ -111,12 +111,13 @@ export const Carousel = (props) => {
         }); 
       }
     }
-
     set({
       x: memo + movementX
     })
 
     return memo;
+  }, {
+    filterTaps: true,
   });
 
   const centerOnCard = (cardIndex) => {

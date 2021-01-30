@@ -1,4 +1,5 @@
 import React from 'react';
+import { StoreCarousel } from './components/storeCarousel';
 import { Carousel } from './components/carousel';
 import styled from 'styled-components';
 import './App.css';
@@ -58,7 +59,7 @@ const cardData = [
 function App() {
   return (
     <Container>
-      <Carousel data={cardData} />
+      <StoreCarousel data={cardData} />
     </Container>
   );
 }
