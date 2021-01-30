@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
@@ -21,7 +21,7 @@ const CarouselRow = styled(animated.div)`
   touch-action: pan-x;
 
   & > *:not(:first-child) {
-    margin-left: -8rem;
+    margin-left: -120px;
   }
 `
 
@@ -69,41 +69,48 @@ const Card = (props) => {
 }
 
 export const Carousel = (props) => {
-  const [ focusedCard, setFocusedCard ] = useState(0);
+  const [ focusedCard, setFocusedCard ] = useState({
+    current: 0,
+    prev: 0,
+  });
 
   const carouselRef = useRef(null);
 
   const [{ x }, set] = useSpring(() => ({ x: -160 }));
 
-  useEffect(() => {
-    const centralCard = carouselRef.current.children[focusedCard];
-    const center = centralCard.offsetLeft + centralCard.offsetWidth / 2;
-
-    return set({
-      x: -center,
-    })
-  }, [focusedCard, set])
-
   // Set the drag hook and define component movement based on gesture data
   const bind = useDrag(({ last, movement: [movementX], memo = x.value}) => {
     if (last) {
-      let newCard = movementX < -50
-        ? focusedCard + 1
-        : movementX > 50
-        ? focusedCard - 1
-        : focusedCard;
-      newCard = newCard < 0 ? 0 : newCard > props.data.length -1 ? props.data.length - 1 : newCard;
-      if (newCard !== focusedCard) {
-        return setFocusedCard(newCard);
-      } else {
-        const centralCard = carouselRef.current.children[focusedCard];
-        const center = centralCard.offsetLeft + centralCard.offsetWidth / 2;
+      setFocusedCard(prevState => {
+        return {
+          ...prevState,
+          prev: prevState.current
+        }
+      })
 
-        return set({
-          x: -center,
-        })
-      }
+      return centerOnCard(focusedCard.current);
     };
+    const spaceBetween = carouselRef.current.children[0].offsetWidth - 120;
+    if (Math.abs(movementX) > spaceBetween || focusedCard.current !== focusedCard.prev) {
+      const absCardsTravelled = Math.floor(Math.abs(movementX) / spaceBetween);
+      const cardsTravelled = movementX < 0 ? absCardsTravelled : -absCardsTravelled;
+      const newCardIndex = cardsTravelled + focusedCard.prev;
+      if (newCardIndex !== focusedCard.current) {
+        const newCard =
+          newCardIndex > props.data.length - 1
+            ? props.data.length - 1
+            : newCardIndex < 0
+              ? 0
+              : newCardIndex
+       
+        setFocusedCard(prevState => {
+          return {
+            ...prevState,
+            current: newCard
+          }
+        }); 
+      }
+    }
 
     set({
       x: memo + movementX
@@ -111,6 +118,20 @@ export const Carousel = (props) => {
 
     return memo;
   });
+
+  const centerOnCard = (cardIndex) => {
+    const centralCard = carouselRef.current.children[cardIndex];
+    const center = centralCard.offsetLeft + centralCard.offsetWidth / 2;
+    
+    return set({
+      x: -center,
+    })
+  }
+
+  const selectCard = (cardIndex) => {
+    setFocusedCard({prev: cardIndex, current: cardIndex});
+    centerOnCard(cardIndex);
+  }
 
 
   return (
@@ -125,12 +146,12 @@ export const Carousel = (props) => {
         {props.data.map((item, i) => 
           <Card
             key={item.id}
-            state={i < focusedCard ? 'prev' : i > focusedCard ? 'next' : 'current'}
-            onClick={() => setFocusedCard(i)}
+            state={i < focusedCard.current ? 'prev' : i > focusedCard.current ? 'next' : 'current'}
+            onClick={() => selectCard(i)}
           />  
         )}
       </CarouselRow>
-      <h1>{props.data[focusedCard].name}</h1>
+      <h1>{props.data[focusedCard.prev].name}</h1>
     </Container>
   )
 }
